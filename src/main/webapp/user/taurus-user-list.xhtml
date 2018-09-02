@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<head>
+    <title></title>
+</head>
+<body>
+
+<ui:composition template="../layout.xhtml">
+
+    <ui:define name="content">
+        <h:form id="userListForm">
+            <p:growl id="msg" showDetail="true" life="2000" />
+
+            <p:accordionPanel id="userList" activeIndex="-1" var="user" value="#{taurusUserListController.taurusUsers}"
+                              styleClass="ui-g-6" multiple="false" widgetVar="accordionUserList">
+                <p:ajax event="tabChange" listener="#{taurusUserListController.onTabChange}" update=":userListForm:userList"/>
+
+                <p:tab id="userListTab">
+                    <f:facet name="title">
+                        <h:outputText id="tabTitle" value="#{user.auditComplete?'AUDIT COMPLETE ':'AUDIT REQUIRED '} - #{user.displayName}" />
+                    </f:facet>
+
+                    <p:pickList id="pickList"
+                                value="#{taurusUserListController.selectedUserPermissions}"
+                                converter="permissionPickListConverter"
+                                var="permission"
+                                itemLabel="#{permission.name}" itemValue="#{permission}">
+                        <f:facet name="sourceCaption">Revoke</f:facet>
+                        <f:facet name="targetCaption">Keep</f:facet>
+                        <p:ajax event="transfer" listener="#{taurusUserListController.onPickListTransfer}" />
+                    </p:pickList>
+                    <p:commandButton id="auditComplete" disabled="#{user.auditComplete ? 'true' : 'false' }" value="Mark Audit Complete"
+                                     actionListener="#{taurusUserListController.markUserAuditComplete(true)}"
+                                     update="userListForm:userList:#{taurusUserListController.activeTabIndexString}:tabTitle
+                                             userListForm:userList:#{taurusUserListController.activeTabIndexString}:auditComplete
+                                             userListForm:userList:#{taurusUserListController.activeTabIndexString}:auditInComplete"
+                                     styleClass="ui-priority-primary" />
+                    <p:commandButton id="auditInComplete" disabled="#{!user.auditComplete ? 'true' : 'false' }" value="Mark Audit Required"
+                                     actionListener="#{taurusUserListController.markUserAuditComplete(false)}"
+                                     update="userListForm:userList:#{taurusUserListController.activeTabIndexString}:tabTitle
+                                             userListForm:userList:#{taurusUserListController.activeTabIndexString}:auditComplete
+                                             userListForm:userList:#{taurusUserListController.activeTabIndexString}:auditInComplete"
+                                     styleClass="ui-priority-primary" />
+
+                </p:tab>
+
+            </p:accordionPanel>
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>
+
+</body>
+</html>
