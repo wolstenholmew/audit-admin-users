@@ -12,12 +12,13 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.stream.Collectors;
 
-/*select tu.username, tp.name from taurus_user_permission tup
+/*
+select tu.username, tp.name from taurus_user_permission tup
         left join taurus_user tu on tu.taurus_id = tup.taurus_user_id
         join taurus_permission tp on tp.taurus_id = tup.taurus_permission_id and tup.authorised = true
-
-<p:ajax event="tabChange" listener="#{taurusUserListController.onTabChange}" update=":userListForm:userList"/>*/
+*/
 
 @Scope(value = "session")
 @Component(value = "taurusUserListController")
@@ -28,39 +29,41 @@ public class TaurusUserListController {
     @Autowired
     private TaurusUserService userService;
 
-    private List<TaurusUser> taurusUsers;
-    private DualListModel<TaurusPermission> selectedUserPermissions;
+    private List<TaurusUserListItem> taurusUserListItems;
     private AccordionPanel activeAccordionPanel;
 
     @PostConstruct
     public void init() {
-        taurusUsers = userService.findAllUsers();
-        selectedUserPermissions = new DualListModel<>();
+        taurusUserListItems = userService.findAllUsers().stream()
+                .map( u -> new TaurusUserListItem( u, userService.createPickListOfPermissionsForUser( u.getTaurusId() ) ) )
+                .collect( Collectors.toList() );
     }
 
     public List<TaurusUser> getTaurusUsers() {
-        return taurusUsers;
+        return taurusUserListItems.stream()
+                .map( p -> p.getUser() )
+                .collect( Collectors.toList() );
     }
 
     public void onTabChange(TabChangeEvent event) {
         activeAccordionPanel = (AccordionPanel)event.getTab().getParent();
-        selectedUserPermissions = userService.createPickListOfPermissionsForUser(taurusUsers.get(getActiveTabIndex()).getTaurusId());
     }
 
     public DualListModel<TaurusPermission> getSelectedUserPermissions() {
-        return selectedUserPermissions;// = userService.createPickListOfPermissionsForUser(taurusUsers.get(getActiveTabIndex()).getTaurusId());
+        return taurusUserListItems.get(getActiveTabIndex()).getPermissions();
     }
 
     public void setSelectedUserPermissions(DualListModel<TaurusPermission> selectedUserPermissions) {
-        this.selectedUserPermissions = selectedUserPermissions;
+        this.taurusUserListItems.get(getActiveTabIndex()).setPermissions(selectedUserPermissions);
     }
 
     public void onPickListTransfer(TransferEvent event) {
-        userService.updateAndSaveUserPermissionList((List<TaurusPermission>)event.getItems(), taurusUsers.get(getActiveTabIndex()), event.isAdd());
+        userService.updateAndSaveUserPermissionList((List<TaurusPermission>)event.getItems(), taurusUserListItems.get(getActiveTabIndex()).getUser(), event.isAdd());
     }
 
     public void markUserAuditComplete(boolean auditComplete) {
-        taurusUsers.set(getActiveTabIndex(), userService.markUserAuditComplete(taurusUsers.get(getActiveTabIndex()), auditComplete));
+        TaurusUserListItem user = taurusUserListItems.get( getActiveTabIndex() );
+        user.setUser( userService.markUserAuditComplete( user.getUser(), auditComplete ) );
     }
 
     public int getActiveTabIndex() {

@@ -11,14 +11,13 @@ import javax.faces.convert.FacesConverter;
 import java.util.List;
 
 @FacesConverter(value = "permissionPickListConverter")
-public class permissionPickListConverter implements Converter {
+public class PermissionPickListConverter implements Converter {
 
     @Override
     public Object getAsObject(FacesContext context, UIComponent component, String value) throws ConverterException {
         DualListModel<TaurusPermission> pList = (DualListModel)((PickList) component).getValue();
         String[] args = value.split("-");
-        TaurusPermission permission = findPermissionInDualList(pList, Integer.valueOf(args[0]), Integer.valueOf(args[1]));
-        return permission;
+        return findPermissionInDualList(pList, Integer.valueOf(args[0]), Integer.valueOf(args[1]));
     }
 
     @Override
@@ -32,7 +31,7 @@ public class permissionPickListConverter implements Converter {
     }
 
     private TaurusPermission findPermissionInDualList(DualListModel<TaurusPermission> dualList, int objId, int taurusId) {
-        TaurusPermission permission = null;
+        TaurusPermission permission;
         permission = findPermissionInList(dualList.getSource(), objId, taurusId);
         if(null == permission) {
             permission = findPermissionInList(dualList.getTarget(), objId, taurusId);

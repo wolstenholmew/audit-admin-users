@@ -53,14 +53,13 @@ public class TaurusUserService {
             TaurusUserPermission userPermission = userPermissionDao.findByTaurusUserIdAndTaurusPermissionId(user.getTaurusId(), p.getTaurusId());
             userPermission.setAuthorised(keep);
             userPermissionDao.save(userPermission);
-        };
+        }
         return true;
     }
 
     public TaurusUser markUserAuditComplete(TaurusUser taurusUser, boolean auditComplete) {
-        TaurusUser user = userDao.findByTaurusId( taurusUser.getTaurusId() );
-        user.setAuditComplete( auditComplete );
-        return userDao.save( user );
+        taurusUser.setAuditComplete( auditComplete );
+        return userDao.save( taurusUser );
     }
 
 }
