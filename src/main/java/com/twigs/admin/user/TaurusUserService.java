@@ -44,7 +44,6 @@ public class TaurusUserService {
                 source.add(permission);
             }
         }
-
         return pickList;
     }
 
@@ -58,8 +57,8 @@ public class TaurusUserService {
     }
 
     public TaurusUser markUserAuditComplete(TaurusUser taurusUser, boolean auditComplete) {
-        taurusUser.setAuditComplete( auditComplete );
-        return userDao.save( taurusUser );
+        taurusUser.setAuditComplete(auditComplete);
+        return userDao.save(taurusUser);
     }
 
 }

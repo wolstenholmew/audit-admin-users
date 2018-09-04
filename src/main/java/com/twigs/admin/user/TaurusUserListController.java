@@ -35,7 +35,7 @@ public class TaurusUserListController {
     @PostConstruct
     public void init() {
         taurusUserListItems = userService.findAllUsers().stream()
-                .map( u -> new TaurusUserListItem( u, userService.createPickListOfPermissionsForUser( u.getTaurusId() ) ) )
+                .map( u -> new TaurusUserListItem( u, userService.createPickListOfPermissionsForUser(u.getTaurusId()) ) )
                 .collect( Collectors.toList() );
     }
 
